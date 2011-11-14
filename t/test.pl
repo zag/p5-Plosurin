@@ -2,6 +2,7 @@
 package TmplFile;
 use strict;
 use warnings;
+use v5.10;
 use Data::Dumper;
 sub new {
    my $class = shift;
@@ -12,11 +13,17 @@ sub new {
 
 sub template {
     my ($self , $a) = @_;
-#    return {%a}
-#    diag Dumper
-    die Dumper($a,$self);
+    return $a;
 }
+sub AUTOLOADa {
+    my $self = shift;
+    ( my $sub = $TmplFile::AUTOLOAD ) =~ /DESTROY/ && do {
+        warn "DESTORU";
+        return};
 
+    warn $TmplFile::AUTOLOAD;
+    return {};
+ }
 1;
 package main;
 use strict;
@@ -54,6 +61,8 @@ asdasd asd
 TEXT
 our $file = 'TST';
 my $r = qr{
+    <nocontext:>
+    <matchline>
     <namespace>
     <[Templates]>+
     <rule: Templates>  <header>  <template>
@@ -65,7 +74,7 @@ my $r = qr{
     <rule: h_params> \s+\* \@param <id> <raw_str>
     <rule: template><start_from= matchline><start_template>
             <raw_template=(.*?)><stop_template><stop_at= matchline>
-            (?{  Dumper(\%MATCH); $MATCH{1} =1; })
+            (?{  Dumper(\%MATCH); say "end"; })
     <rule: raw_template>  .*?
     <rule: start_template> \{template <name=(\.\w+)>\} 
     | <matchline><fatal:(?{say "Bad template definition at $file line $MATCH{matchline} : $CONTEXT" })>
@@ -92,13 +101,26 @@ if ( $t =~ $r->with_actions(TmplFile->new(file=>"Test")) ) {
         $ref;
     }
 #    say "OK: " .  pos($t);
-#    say Dumper  {%/} ;
-    say Dumper strip({%/});
-    say {*STDERR} $_ for @!;
+    say Dumper  {%/} ;
+#     say Dumper strip({%/});
+#    say {*STDERR} $_ for @!;
 }
 else {
     say "Bad string";
 }
-say "ok2";
+say "ok2";exit;
+my %commas=(':','',',');
+my $r = qr{
+    <nocontext:>
+    <[dlist]>+
+    <rule: dlist>
+    <[dig=(\d+)]>+ % <%commas>
+    <rule: item>
+    \d
+    <rule: comma>
+    , | : 
+    
+    }x;
+("1, 2, 03,7, 56: 3" =~ $r ) ?  do { say Dumper {%/}} : die "bad"; 
 1;
 
