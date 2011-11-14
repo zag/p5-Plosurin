@@ -11,9 +11,28 @@ sub new {
    $self;
 }
 
-sub template {
+sub Templates {
     my ($self , $a) = @_;
+    say Dumper( $a);
     return $a;
+}
+
+
+sub h_comment {
+    my ($self, $a ) = @_;
+#    say Dumper( $a);
+    return $a
+    
+}
+sub header {
+    my ($self, $a ) = @_;
+    return $a
+}
+
+sub h_params {
+    my ($self, $a ) = @_;
+#    say Dumper( $a);
+    return $a
 }
 sub AUTOLOADa {
     my $self = shift;
@@ -47,10 +66,10 @@ asdasd asd
 {/template}
 
 /**
- * Test1
- * Test2
- * @param test Test file
- * @param test1 Test file
+ * Test11
+ * Test12
+ * @param test Test file11
+ * @param test1 Test file12
  **/
 {template .test}
        
@@ -68,7 +87,7 @@ my $r = qr{
     <rule: Templates>  <header>  <template>
     <rule: namespace> \{namespace <id>\} \n+
     <rule: id>  \w+
-    <rule: header> \/\*+\n (?: <h_params> | <h_comment> )+ \*+\/ 
+    <rule: header> \/\*+\n (?: <[h_params]>|<[h_comment]> )+ \*+\/ 
     <rule: h_comment> \s+\* <raw_str>
     <rule: raw_str> [^@\n]+$
     <rule: h_params> \s+\* \@param <id> <raw_str>
@@ -84,24 +103,8 @@ my $r = qr{
 
 say "ok";
 if ( $t =~ $r->with_actions(TmplFile->new(file=>"Test")) ) {
-
-    sub strip {
-        my $ref = shift;
-        if ( ref($ref) eq 'ARRAY' ) {
-            for (@$ref) {
-                $_ = strip($_);
-            }
-        }
-        elsif ( ref($ref) eq 'HASH' ) {
-            while ( my ( $k, $v ) = each %$ref ) {
-                if ( $k eq '' ) { delete $ref->{$k}; next }
-                $ref->{$k} = strip($v);
-            }
-        }
-        $ref;
-    }
 #    say "OK: " .  pos($t);
-    say Dumper  {%/} ;
+#    say Dumper  {%/} ;
 #     say Dumper strip({%/});
 #    say {*STDERR} $_ for @!;
 }
