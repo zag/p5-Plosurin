@@ -8,22 +8,33 @@
 use strict;
 use warnings;
 
-use Test::More tests => 1;                      # last test to print
+use Test::More tests => 1;    # last test to print
 use Data::Dumper;
 use v5.10;
 use Regexp::Grammars;
 
 my $q = qr{
-    <[content]>+
-    <rule: content> <raw_ext>
-    <rule: raw_text> (?![\{\}])+
+#    <debug:step>
+     <[content]>+ 
+    <token: content>
+        <raw_text>
+        |<command_print>
+        |<command_include>
+        |<matchpos><raw_text1=(.?)><warning:(?{say "May be command ? $MATCH{raw_text1} at $MATCH{matchpos}"})>
+    <rule: command_print> \{print <variable>\}
+    <rule: command_include> \{include <[attribute]>{2} % <_sep=(\s+)> \}
+        |\{include <matchpos><fatal:(?{say "'Include' require 2 attrs at $MATCH{matchpos}"})>
+    <token: attribute> <name=(\w+)>=<value=(?: ['"]([^'"]+)['"] )>
+    <token: variable> \$?\w+ 
+    <rule: raw_text><matchpos> [^\{]+
 }xms;
-my $t =<<TXT;
-<h1>test</h1>{print $n}
+my $t = <<'TXT';
+<h1>test</h1>{print n} { sd text {print rt}
+{include file="asd" rule=":sd"}
 TXT
-if ($t =~ $q) {
-    say Dumper({%/})
-} else { say "BAD"}
-
-
+if ( $t =~ $q ) {
+    say Dumper( {%/} );
+    say( length $t );
+}
+else { say "BAD" }
 

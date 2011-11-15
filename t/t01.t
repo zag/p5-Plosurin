@@ -33,7 +33,7 @@ my $str = <<'TXT';
  * Commets text
  * @param test Test param
  * @param mode Mode for tempalate
- **/
+ */
 {template .Hello}
 <p>Ok</p>
 {/template}

@@ -74,8 +74,8 @@ sub TEMPLATE_GRAMMAR {
     <rule: header> \/\*{2}\n (?: <[h_params]>|<[h_comment]> )+ <javadoc_end> 
         | \/\*\n <matchline><fatal:(?{say "JavaDoc must start with /**! at $file line $MATCH{matchline} : $CONTEXT" })>
 
-    <rule: javadoc_end>\*{2}\/
-        | \s\*\/<matchline><fatal:(?{say "JavaDoc must end with **/! at $file line $MATCH{matchline} : $CONTEXT" })>
+    <rule: javadoc_end>\*\/
+        | <matchline><fatal:(?{say "JavaDoc must end with */! at $file line $MATCH{matchline} : $CONTEXT" })>
 
     <rule: h_comment> \* <raw_str>
     <rule: raw_str> [^@\n]+$
