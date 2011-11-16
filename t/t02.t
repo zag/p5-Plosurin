@@ -22,7 +22,7 @@ my $q = qr{
         |<command_include>
         |<matchpos><raw_text1=(.?)><warning:(?{say "May be command ? $MATCH{raw_text1} at $MATCH{matchpos}"})>
     <rule: command_print> \{print <variable>\}
-    <rule: command_include> \{include <[attribute]>{2} % <_sep=(\s+)> \}
+    <objrule: Plo::command_include> \{include <[attribute]>{2} % <_sep=(\s+)> \}
         |\{include <matchpos><fatal:(?{say "'Include' require 2 attrs at $MATCH{matchpos}"})>
     <token: attribute> <name=(\w+)>=['"]<value=(?: ([^'"]+) )>['"]
     <token: variable> \$?\w+ 
