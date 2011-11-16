@@ -24,7 +24,7 @@ my $q = qr{
     <rule: command_print> \{print <variable>\}
     <rule: command_include> \{include <[attribute]>{2} % <_sep=(\s+)> \}
         |\{include <matchpos><fatal:(?{say "'Include' require 2 attrs at $MATCH{matchpos}"})>
-    <token: attribute> <name=(\w+)>=<value=(?: ['"]([^'"]+)['"] )>
+    <token: attribute> <name=(\w+)>=['"]<value=(?: ([^'"]+) )>['"]
     <token: variable> \$?\w+ 
     <rule: raw_text><matchpos> [^\{]+
 }xms;
