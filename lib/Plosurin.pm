@@ -19,39 +19,6 @@ Plosurin - Perl 5 implementation of Closure Templates
 
 =cut
 
-package TmplFile;
-use strict;
-use warnings;
-use v5.10;
-
-sub new {
-    my $class = shift;
-    $class = ref $class if ref $class;
-    my $self = bless( {@_}, $class );
-    $self;
-}
-
-sub Templates {
-    my ( $self, $a ) = @_;
-    return $a;
-}
-
-sub h_comment {
-    my ( $self, $a ) = @_;
-    return $a
-
-}
-
-sub header {
-    my ( $self, $a ) = @_;
-    return $a;
-}
-
-sub h_params {
-    my ( $self, $a ) = @_;
-    return $a;
-}
-1;
 
 package Plosurin;
 use strict;
@@ -59,36 +26,14 @@ use warnings;
 use v5.10;
 our $VERSION = 0.1_1;
 use Regexp::Grammars;
+use Plosurin::SoyTree;
 our $file = "???";
 
 sub TEMPLATE_GRAMMAR {
     our $file = shift;
     qr{
-    <nocontext:>
-    <matchline>
-    <namespace>
-    <[Templates]>+
-    <rule: Templates>  <header>  <template>
-    <rule: namespace> \{namespace <id>\} \n+
-    <rule: id>  [\.\w]+
-    <rule: header> \/\*{2}\n (?: <[h_params]>|<[h_comment]> )+ <javadoc_end> 
-        | \/\*\n <matchline><fatal:(?{say "JavaDoc must start with /**! at $file line $MATCH{matchline} : $CONTEXT" })>
-
-    <rule: javadoc_end>\*\/
-        | <matchline><fatal:(?{say "JavaDoc must end with */! at $file line $MATCH{matchline} : $CONTEXT" })>
-
-    <rule: h_comment> \* <raw_str>
-    <rule: raw_str> [^@\n]+$
-    <rule: h_params> \* \@param <id> <raw_str>
-
-    <rule: template><start_from= matchline><start_template>
-            <raw_template=(.*?)><stop_template><stop_at= matchline>
-    
-    <rule: raw_template>  .*?
-
-    <rule: start_template> \{template <name=(\.\w+)>\} 
-    | <matchline><fatal:(?{say "Bad template definition at $file line $MATCH{matchline} : $CONTEXT" })>
-    <rule: stop_template>  \{\/template\}
+    <grammar: Plosurin::Template::Grammar>
+#    <nocontext:>
 
   }xms;
 

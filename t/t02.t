@@ -1,111 +1,9 @@
 #===============================================================================
 #
-#  DESCRIPTION:  Test plo syntax
+#  DESCRIPTION:  Test soy syntax
 #
 #       AUTHOR:  Aliaksandr P. Zahatski, <zahatski@gmail.com>
 #===============================================================================
-package Plo::Actions;
-use strict;
-use warnings;
-use v5.10;
-use Data::Dumper;
-
-sub new {
-    my $class = shift;
-    bless( ( $#_ == 0 ) ? shift : {@_}, ref($class) || $class );
-}
-
-sub content_ {
-    my $self = shift;
-    my ($a) = @_;
-
-    #   say Dumper( $a );
-    #    say Dumper(\@_);
-    #    @_
-    $a;
-}
-1;
-
-package Plo::base;
-sub new {
-    my $class = shift;
-    bless( ( $#_ == 0 ) ? shift : {@_}, ref($class) || $class );
-}
-sub childs {[]}
-1;
-package Plo::command_print;
-use base 'Plo::base';
-1;
-package Plo::raw_text;
-use base 'Plo::base';
-1;
-package Plo::command_if;
-use base 'Plo::base';
-use strict;
-use warnings;
-use v5.10;
-use Data::Dumper;
-sub childs {
-    my $self =shift;
-    if (@_) {
-        $self->{content} = shift;
-    }
-    $self->{content}
-}
-1;
-
-package Plosutin::Plo;
-use strict;
-use warnings;
-use v5.10;
-use Data::Dumper;
-
-sub new {
-    my $class = shift;
-    bless( ( $#_ == 0 ) ? shift : {@_}, ref($class) || $class );
-}
-
-sub syntax_tree {
-    my $sellf = shift;
-}
-
-=head2 reduce_tree
-Union raw_text nodes
-=cut
-
-sub reduce_tree {
-    my $self = shift;
-    my $tree = shift || return [];
-    my @res  = ();
-    while ( my $node = shift @$tree ) {
-
-        #skip first node
-        #skip all non text nodes
-        if ( ref( $node->{obj} ) ne 'Plo::raw_text' || scalar(@res) == 0 ) {
-            if ( my $sub_tree = $node->{obj}->childs ) {
-                $node->{obj}->childs($self->reduce_tree($sub_tree));
-            }
-            push @res, $node;
-            next;
-        }
-        my $prev = pop @res;
-        unless ( ref( $prev->{obj} ) eq 'Plo::raw_text' ) {
-            push @res, $prev;
-        }
-        else {
-
-            #now union !
-            $node->{obj} = Plo::raw_text->new(
-                { '' => $prev->{obj}->{''} . $node->{obj}->{''} } );
-            $node->{matchline} = $prev->{matchline};
-            $node->{matchpos}  = $node->{matchpos};
-        }
-        push @res, $node;
-    }
-    \@res;
-}
-
-package main;
 use strict;
 use warnings;
 
@@ -113,48 +11,204 @@ use Test::More tests => 1;    # last test to print
 use Data::Dumper;
 use v5.10;
 use Regexp::Grammars;
+use Plosurin::Grammar;
+use Plosurin::SoyTree;
 
 my $q = qr{
+     <extends: Plosurin::Grammar>
 #    <debug:step>
-     <[content]>+ 
-    <token: Plo::content><matchpos><matchline>
-        (?:
+    \A  <[content]>* \Z
 
-         <obj=raw_text>
-        |<obj=command_print>
-        |<obj=command_include>
-        |<obj=command_if>
-        |<obj=raw_text_add>
-
-        )
-    <objrule: Plo::raw_text=raw_text_add><matchpos>(.?)
-#        <warning:(?{say "May be command ? $MATCH{raw_text_add} at $MATCH{matchpos}"})>
-    <objrule: Plo::command_print>
-                   \{print <variable>\}
-    <objrule: Plo::command_include>
-              \{include <[attribute]>{2} % <_sep=(\s+)> \}
-             |\{include <matchpos><fatal:(?{say "'Include' require 2 attrs at $MATCH{matchpos}"})>
-
-    <token: attribute> <name=(\w+)>=['"]<value=(?: ([^'"]+) )>['"]
-
-    <token: variable> \$?\w+ 
-    <token: expression> .*?
-
-    <objrule:  Plo::raw_text> [^\{]+
-    <objrule: Plo::command_if> \{if <expression>\} <[content]>+
-                    \{\/if\}
 }xms;
-my $t = <<'TXT';
-{if 3.14}
-  {$pi} is a good approximation of pi.
-{/if}
-TXT
 
-if ( $t =~ $q->with_actions( new Plo::Actions:: ) ) {
+my @t;
+my $STOP_TREE = 0;
+#@t = (    '{if 2} raw text {elseif 34}  asdasd{else} none {/if}',
+#);
+#@t = ('{call .test }{param test : 1 /}{/call}');
 
-    say  Dumper( Plosutin::Plo->new()->reduce_tree( {%/}->{content} ) );
+my @grammars = (
+    "<h1>test</h2>", [
+        {
+            'Soy::raw_text' => {}
+        }
+    ], 'raw text',
 
-    #    say( length $t );
+    "{print 2}", [
+        {
+            'Soy::command_print' => {}
+        }
+    ], 'print',
+
+    "{if 2} {/if}",
+    [
+        {
+            'Soy::command_if' => {
+                'if' => {
+                    'expression' => {},
+                    'childs'     => [ { 'Soy::raw_text' => {} } ]
+                }
+            }
+        }
+    ],
+    "{if}..{/if}",
+
+    '{if 2} raw text {elseif 34}  asdasd{else} none {/if}',
+    [
+        {
+            'Soy::command_if' => {
+                'else' => {
+                    'Soy::command_else' =>
+                      { 'childs' => [ { 'Soy::raw_text' => {} } ] }
+                },
+                'elseif' => [
+                    {
+                        'Soy::command_elseif' => {
+                            'expression' => {},
+                            'childs'     => [ { 'Soy::raw_text' => {} } ]
+                        }
+                    }
+                ],
+                'if' => {
+                    'expression' => {},
+                    'childs'     => [ { 'Soy::raw_text' => {} } ]
+                }
+            }
+        }
+    ],
+    "{if}..{elseif}..{/if}",
+
+    "{if 2} raw text {else} none {/if}",
+    [
+        {
+            'Soy::command_if' => {
+                'else' => {
+                    'Soy::command_else' =>
+                      { 'childs' => [ { 'Soy::raw_text' => {} } ] }
+                },
+                'if' => {
+                    'expression' => {},
+                    'childs'     => [ { 'Soy::raw_text' => {} } ]
+                }
+            }
+        }
+    ],
+    '{if}..{else}..{if}',
+
+    "{if 2} raw text   
+     {elseif 3}   1     
+     {elseif 4}   3     
+     {else} none  
+     {/if}",
+    [
+        {
+            'Soy::command_if' => {
+                'else' => {
+                    'Soy::command_else' =>
+                      { 'childs' => [ { 'Soy::raw_text' => {} } ] }
+                },
+                'elseif' => [
+                    {
+                        'Soy::command_elseif' => {
+                            'expression' => {},
+                            'childs'     => [ { 'Soy::raw_text' => {} } ]
+                        }
+                    },
+                    {
+                        'Soy::command_elseif' => {
+                            'expression' => {},
+                            'childs'     => [ { 'Soy::raw_text' => {} } ]
+                        }
+                    }
+                ],
+                'if' => {
+                    'expression' => {},
+                    'childs'     => [ { 'Soy::raw_text' => {} } ]
+                }
+            }
+        }
+    ],
+    '{if}..{elseif}..{elseif}..{else}..{if}',
+
+    "{if 2} raw text
+     {elseif 4}
+         3 {print 4}   2{else}
+         1
+    {/if}",
+    [
+        {
+            'Soy::command_if' => {
+                'else' => {
+                    'Soy::command_else' =>
+                      { 'childs' => [ { 'Soy::raw_text' => {} } ] }
+                },
+                'elseif' => [
+                    {
+                        'Soy::command_elseif' => {
+                            'expression' => {},
+                            'childs'     => [
+                                { 'Soy::raw_text'      => {} },
+                                { 'Soy::command_print' => {} },
+                                { 'Soy::raw_text'      => {} }
+                            ]
+                        }
+                    }
+                ],
+                'if' => {
+                    'expression' => {},
+                    'childs'     => [ { 'Soy::raw_text' => {} } ]
+                }
+            }
+        }
+    ],
+    "{if}..{elseif}..{print}..{else}..{/if}",
+
+    #{call}
+    '{call .test_template data="all"/}',
+    [
+        {
+            'Soy::command_call_self' => {
+                'attrs'    => { 'data' => 'all' },
+                'template' => '.test_template'
+            }
+        }
+    ],
+    '{call../}',
+    '{call .test }{param test : 1 /}{param data}text{/param}{/call}',
+    [
+        {
+            'Soy::command_call' => {
+                'attrs'    => {},
+                'template' => '.test',
+                'childs'   => [
+                    {
+                        'Soy::command_param_self' => {
+                            'value' => '1',
+                            'name'  => 'test'
+                        }
+                    },
+                    {
+                        'Soy::command_param' =>
+                          { 'childs' => [ { 'Soy::raw_text' => {} } ] }
+                    }
+                ]
+            }
+        }
+    ],
+    undef
+);
+
+#@grammars = splice( @grammars, scalar(@grammars) - 3, 3 );
+@grammars = @t if scalar(@t);
+while ( my ( $src, $extree, $name ) = splice( @grammars, 0, 3 ) ) {
+    $name //= $src;
+    my $plo = Plosurin::SoyTree->new(src=>$src);
+    unless ( ref($plo) ) { fail($name) };
+    if ($STOP_TREE) { say Dumper( $plo->raw_tree ); exit; }
+    my $tree = $plo->reduced_tree();
+    my $res_tree = $plo->dump_tree(@$tree);
+    is_deeply( $res_tree, $extree, $name )
+          || do { say "fail Deeeple" . Dumper( $res_tree, $extree, ); exit; };
+
 }
-else { say "BAD" }
 
