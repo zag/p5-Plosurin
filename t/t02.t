@@ -18,7 +18,6 @@ my $q = qr{
      <extends: Plosurin::Grammar>
 #    <debug:step>
     \A  <[content]>* \Z
-
 }xms;
 
 my @t;
@@ -206,7 +205,7 @@ while ( my ( $src, $extree, $name ) = splice( @grammars, 0, 3 ) ) {
     unless ( ref($plo) ) { fail($name) };
     if ($STOP_TREE) { say Dumper( $plo->raw_tree ); exit; }
     my $tree = $plo->reduced_tree();
-    my $res_tree = $plo->dump_tree(@$tree);
+    my $res_tree = $plo->dump_tree($tree);
     is_deeply( $res_tree, $extree, $name )
           || do { say "fail Deeeple" . Dumper( $res_tree, $extree, ); exit; };
 

@@ -10,10 +10,66 @@ use warnings;
 use v5.10;
 use Regexp::Grammars;
 
+=head2 Plosurin::Template::Grammar - template file grammar
+
+    qr{
+    my $r = qr{
+       <extends: Plosurin::Template::Grammar>
+        <matchline>
+        \A <File> \Z
+    }xms;
+    if ( $txt =~ $r) {
+        ...
+    } 
+    
+=cut
+qr{
+    <grammar: Plosurin::Template::Grammar>
+    <objrule: Plo::File>
+    <namespace>(?{ $MATCH{file} = $file//"linein"})
+    <[templates=template]>+ % <_sep=(\s+)> \s+
+    <objtoken: Plo::template> <header> <template_block>
+    <rule: namespace> \{namespace <id>\} \n+
+    <rule: id>  [\.\w]+
+    <rule: header> \/\*{2}\n (?: <[h_params]>|<[h_comment]> )+ <javadoc_end> 
+        | \/\*\n <matchline><fatal:(?{say "JavaDoc must start with /**! at $file line $MATCH{matchline} : $CONTEXT" })>
+
+    <rule: javadoc_end>\*\/
+        | <matchline><fatal:(?{say "JavaDoc must end with */! at $file line $MATCH{matchline} : $CONTEXT" })>
+
+    <rule: h_comment> \* <raw_str>
+    <rule: raw_str> [^@\n]+$
+    <objrule: Plo::h_params> \* \@param<is_notreq=(\?)>? <id> <raw_str>
+    
+    <rule: template_block>
+            <start_template>
+            <raw_template=(.*?)>
+#            <raw_template>
+            <stop_template>
+    <rule: raw_template>  (!? <stop_template> ) .*?
+
+    <rule: start_template> \{template <name=(\.\w+)>\} 
+    | <matchline><fatal:(?{say "Bad template definition at $file line $MATCH{matchline} : $CONTEXT" })>
+    <rule: stop_template>  \{\/template\}
+  }xms;
+
+=head2 Plosurin::Grammar - soy grammar
+
+    qr{
+    my $r = qr{
+     <extends: Plosurin::Grammar>
+    \A  <[content]>* \Z
+    }xms;
+    if ( $txt =~ $r) {
+        ...
+    } 
+    
+=cut
+
 qr{
      <grammar: Plosurin::Grammar>
 #    \A  <[content]>* \Z
-    <token: Soy::content><matchpos><matchline>
+    <objtoken: Soy::Node=content><matchpos><matchline>
         (?:
 
          <obj=raw_text>
@@ -65,5 +121,4 @@ qr{
 }xms;
 
 1;
-
 
