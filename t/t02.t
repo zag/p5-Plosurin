@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 1;    # last test to print
+use Test::More tests => 10;    # last test to print
 use Data::Dumper;
 use v5.10;
 use Regexp::Grammars;
@@ -22,8 +22,10 @@ my $q = qr{
 
 my @t;
 my $STOP_TREE = 0;
-#@t = (    '{if 2} raw text {elseif 34}  asdasd{else} none {/if}',
-#);
+
+# Looks like you failed 1 test of 1.
+@t = ();
+
 #@t = ('{call .test }{param test : 1 /}{/call}');
 
 my @grammars = (
@@ -187,27 +189,54 @@ my @grammars = (
                         }
                     },
                     {
-                        'Soy::command_param' =>
-                          { 'childs' => [ { 'Soy::raw_text' => {} } ] }
+                        'Soy::command_param' => {
+                            'name'   => 'data',
+                            'childs' => [ { 'Soy::raw_text' => {} } ]
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    undef,
+
+    '{call test.ok}{param t }<br/>{/param}{param d : 1 /}{/call}',
+    [
+        {
+            'Soy::command_call' => {
+                'attrs'    => {},
+                'template' => 'test.ok',
+                'childs'   => [
+                    {
+                        'Soy::command_param' => {
+                            'name'   => 't',
+                            'childs' => [ { 'Soy::raw_text' => {} } ]
+                        }
+                    },
+                    {
+                        'Soy::command_param_self' => {
+                            'value' => '1',
+                            'name'  => 'd'
+                        }
                     }
                 ]
             }
         }
     ],
     undef
+
 );
 
-#@grammars = splice( @grammars, scalar(@grammars) - 3, 3 );
 @grammars = @t if scalar(@t);
 while ( my ( $src, $extree, $name ) = splice( @grammars, 0, 3 ) ) {
     $name //= $src;
-    my $plo = Plosurin::SoyTree->new(src=>$src);
-    unless ( ref($plo) ) { fail($name) };
+    my $plo = Plosurin::SoyTree->new( src => $src );
+    unless ( ref($plo) ) { fail($name) }
     if ($STOP_TREE) { say Dumper( $plo->raw_tree ); exit; }
-    my $tree = $plo->reduced_tree();
+    my $tree     = $plo->reduced_tree();
     my $res_tree = $plo->dump_tree($tree);
     is_deeply( $res_tree, $extree, $name )
-          || do { say "fail Deeeple" . Dumper( $res_tree, $extree, ); exit; };
+      || do { say "fail Deeeple" . Dumper( $res_tree, $extree, ); exit; };
 
 }
 

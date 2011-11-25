@@ -7,39 +7,55 @@ use v5.12;
 use Data::Dumper;
 use IO::File;
 use Plosurin;
+use HTTP::Server::Simple::WebDAO;
+use Plosurin::HTTP;
 
 my ( $help, $man );
-my ($type, $package) = ("perl5", 'MyApp::Tmpl');
-my %opt =
-  ( help => \$help, man => \$man,
-    type=>\$type, package=>\$package ); #meta=>\$meta,);
-GetOptions( \%opt, 'help|?', 'man', 'c=s', "type|t:s",  'package|p=s', )
+my ( $type, $package, $mode, $port ) = ( "perl5", 'MyApp::Tmpl', 'soy', 8080 );
+my %opt = (
+    help    => \$help,
+    man     => \$man,
+    type    => \$type,
+    package => \$package,
+    mode    => \$mode,
+    port    =>\$port,
+);
+GetOptions( \%opt, 'help|?', 'man', 'c=s', "type|t:s", 'package|p=s',
+    'mode|m=s', 'port=s' )
   or pod2usage(2);
 pod2usage(1) if $help;
 pod2usage( -exitstatus => 0, -verbose => 2 ) if $man;
+
 unless ($type) {
-  pod2usage( -exitstatus => 2, -message => 'Need valide -type !' );    
+    pod2usage( -exitstatus => 2, -message => 'Need valide -type !' );
 }
 
-if ($type =~ /^perl/ and !$package) {
-  pod2usage( -exitstatus => 2, -message => 'Need valide -package !' );
+if ( $type =~ /^perl/ and !$package ) {
+    pod2usage( -exitstatus => 2, -message => 'Need valide -package !' );
 }
 
-my $infile = shift  ;
-my $in_fd;
-if ($infile) {
-    $in_fd = new IO::File:: "< $infile" or die "$infile: $!";
+if ( $mode eq 'web' ) {
+    #check if web server mode
+    my $srv = new HTTP::Server::Simple::WebDAO::($port);
+    $srv->set_config( wdEngine => "Plosurin::HTTP", wdDebug => 3 );
+    $srv->run();
 }
 else {
-    $in_fd = \*STDIN;
+    my $infile = shift;
+    my $in_fd;
+    if ($infile) {
+        $in_fd = new IO::File:: "< $infile" or die "$infile: $!";
+    }
+    else {
+        $in_fd = \*STDIN;
+    }
+    my $in;
+    { undef $/; $in = <$in_fd> };
+    my $p = new Plosurin::;
+    my $nodes = $p->parse( $in, $infile // "STDIN" );
+    die "Can't parse $infile" unless $nodes;
+    say $p->as_perl5( { package => $package }, $nodes );
 }
-my $in;
-{ undef $/; $in = <$in_fd>};
-my $p = new Plosurin::;
-my $nodes = $p->parse($in, $infile//"STDIN");
-die "Can't parse $infile" unless $nodes;
-say $p->as_perl5({package=>$package}, $nodes );
-
 exit 0;
 
 =head1 NAME
@@ -48,16 +64,27 @@ exit 0;
 
 =head1 SYNOPSIS
 
-  plosurin.p5 -type perl5  -package MyApp::Tmpl < file.soy
+  plosurin.p5 -type perl5  -package MyApp::Tmpl file.soy > file.pm
+  plosurin.p5 -mode web /devel/dir
 
    options:
 
     -help  - print help message
     -man   - print man page
+    -mode|m  - web | soy . default soy.
+    
+    options for -mode soy:
+
     -type|t type - type outpuf file: perl5.
                     default: perl5
     -package - (perl5, perl6 modes) - set package name.
                     default: MyApp::Tmpl
+
+    options for -mode web
+    - p - set http port .default 8080.
+    - d - set web serever root path. default current dir.
+    
+
 =head1 OPTIONS
 
 =over 8

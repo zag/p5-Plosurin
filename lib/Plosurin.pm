@@ -60,9 +60,12 @@ sub new {
 
 sub body { $_[0]->{template_block}->{raw_template} }
 sub name { $_[0]->{template_block}->{start_template}->{name} }
-sub comment { return join "\n", map { $_->{raw_str} } @{ $_[0]->{header}->{h_comment}} }
-sub params { @{ $_[0]->{header}->{h_params}}}
-sub full_name { my $self = shift; $self->{namespace} . $self->name}
+
+sub comment {
+    return join "\n", map { $_->{raw_str} } @{ $_[0]->{header}->{h_comment} };
+}
+sub params { @{ $_[0]->{header}->{h_params} } }
+sub full_name { my $self = shift; $self->{namespace} . $self->name }
 1;
 
 package Plosurin;
@@ -107,40 +110,48 @@ use Data::Dumper;
 sub as_perl5 {
     my $self  = shift;
     my $opt   = shift;
-    eturn "need at least one $file" unless scalar(@_);
+    return " need at least one $file" unless scalar(@_);
     my @files = map { ( ref($_) eq 'ARRAY' ) ? @{$_} : ($_) } @_;
     my $res   = '';
+    my @alltemplates=();
     #1. collect template_full_name (namespace+name)
     my $ctx = new Plosurin::Context::(@files);
-    $ctx->{package} = $opt->{package} || die " use as_perl5( {package=> ...} )!";
+    $ctx->{package} = $opt->{package} || die "
+      use as_perl5( { package => ... } ) !";
     foreach my $file (@files) {
         my $tmpl_code;
-        for (sort $file->templates ) {
-            my $tmpl_name = $_->name;
+        foreach my $tmpl ( $file->templates ) {
+            my $tmpl_name = $tmpl->name;
             my $namespace = $file->namespace;
             ( my $converted_name = $namespace . $tmpl_name ) =~ tr/\./_/;
 
-            my $plo = new Plosurin::SoyTree( src => $_->body );
+            my $plo = new Plosurin::SoyTree( src => $tmpl->body );
             die $plo unless ref $plo;
             my $reduced = $plo->reduced_tree;
-            my $code = '';    # =  Dumper $plo->dump_tree(  $reduced );
-                              #diag Dumper Dumper($reduced); exit;
-            
+            my $code = 'my $res = "";';
             foreach my $node (@$reduced) {
                 $ctx->{namespace} = $namespace;
                 $code .= $node->as_perl5( $ctx );
             }
+            $code .='return $res;';
+
+            push @alltemplates,{
+                tmpl=>$tmpl,
+                namespace=>$namespace,
+                name=>$tmpl_name,
+                perl5_name=>$converted_name,
+                package_name=>$opt->{package}. "::".$converted_name, 
+                code => $code
+            };
             $tmpl_code .= <<"SUB"
 =head1 $converted_name
 
-@{[ $_->comment ]}
+@{[ $tmpl->comment ]}
 
 ( I<src>: C<@{[ $file->{file} ]}>, I<template name>: C<$tmpl_name> )
 =cut
 sub $converted_name \{
-       my \$res = '';
        $code
-      return \$res;
 \}
 SUB
         }
@@ -176,7 +187,7 @@ Perl 6 implementation L<https://github.com/zag/plosurin>
 =cut
 TMPL
     }
-    $res;
+     wantarray() ? ($res, @alltemplates) : $res;
 }
 1;
 __END__

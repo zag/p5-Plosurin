@@ -31,16 +31,18 @@ qr{
     <objtoken: Plo::template> <header> <template_block>
     <rule: namespace> \{namespace <id>\} \n+
     <rule: id>  [\.\w]+
-    <rule: header> \/\*{2}\n (?: <[h_params]>|<[h_comment]> )+ <javadoc_end> 
-        | \/\*\n <matchline><fatal:(?{say "JavaDoc must start with /**! at $file line $MATCH{matchline} : $CONTEXT" })>
-
-    <rule: javadoc_end>\*\/
-        | <matchline><fatal:(?{say "JavaDoc must end with */! at $file line $MATCH{matchline} : $CONTEXT" })>
-
-    <rule: h_comment> \* <raw_str>
-    <rule: raw_str> [^@\n]+$
+    <rule: header>
+        <javadoc_start>
+        <[h_comment]>+ % (\s+)
+        (?: <[h_params]>+ % (\s+) )?
+        <javadoc_end>
+    <rule: javadoc_start>\/\*
+        | \/\*\n<matchline><fatal:(?{say "JavaDoc must start with /**! at $file line $MATCH{matchline} : $CONTEXT" })>
+    <rule: javadoc_end> \*\/
+#        | <matchline><fatal:(?{say "JavaDoc must end with */!  at $file line $MATCH{matchline} : $CONTEXT" })>
+    <rule: h_comment>\* <raw_str> 
+    <rule: raw_str> [^@\n]+
     <objrule: Plo::h_params> \* \@param<is_notreq=(\?)>? <id> <raw_str>
-    
     <rule: template_block>
             <start_template>
             <raw_template=(.*?)>
@@ -111,10 +113,10 @@ qr{
                                <[content=param]>*
                                 \{\/call\}
 
-    <token: param> 
+    <objtoken: Soy::Node=param> 
         <matchpos><matchline> 
         (?: <obj=command_param_self> | <obj=command_param> )
-    <objrule: Soy::command_param_self> \{param <name=(.*?)> : <value=(.*?)> \/\}
+    <objrule: Soy::command_param_self> \{param <name=variable> : <value=(.*?)> \/\}
     <objrule: Soy::command_param> \{param <name=(.*?)> \}
                     <[content]>+?
                   \{\/param\}

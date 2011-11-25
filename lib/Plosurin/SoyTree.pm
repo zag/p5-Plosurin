@@ -44,7 +44,7 @@ sub childs {
     [ @{ $self->{content} } ];
 }
 
-sub as_perl5 { die "$_[0]\-\>as_perl5 unimplemented "}
+sub as_perl5 { die "$_[0]\-\>as_perl5 unimplemented " }
 
 sub dump {
     my $self   = shift;
@@ -72,11 +72,12 @@ use base 'Soy::base';
 
 package Soy::raw_text;
 use base 'Soy::base';
+
 sub as_perl5 {
-    my $self= shift;
-    my $str = $self->{''};
+    my $self = shift;
+    my $str  = $self->{''};
     $str =~ s/\!/\\\!/g;
-    "\$res .=q!$str!;\n"
+    "\$res .=q!$str!;\n";
 }
 1;
 
@@ -98,13 +99,33 @@ use base 'Soy::base';
 use strict;
 use warnings;
 use Data::Dumper;
+
 sub as_perl5 {
-    my ($self, $ctx) = @_;
+    my ( $self, $ctx ) = @_;
     my $template = $self->{tmpl_name};
-    my $attr = $self->attrs;
-    my $tmpl = $ctx->get_template_by_name($template);
-    my $sub = $ctx->get_perl5_name($tmpl);
-    return '$res .= &'.$sub.'(@_); # calling '. $template;
+    my $attr     = $self->attrs;
+    my $tmpl     = $ctx->get_template_by_name($template);
+    my $sub = $ctx->get_perl5_name($tmpl) || die "Not found template $template";
+    if ( scalar( @{ $self->childs } ) ) {
+        my $code = '';
+        my @ch   = @{ $self->childs };
+        foreach my $p ( @{ $self->childs } ) {
+
+            #check if childs id param
+            die "{call ... }{/call} can contain only {param}"
+              unless $p->isa('Soy::command_param') || $p->isa('Soy::Node');
+
+            #now export
+            $code .= $p->as_perl5($ctx);
+        }
+        return
+            '$res .= &' 
+          . $sub . '(' 
+          . $code
+          . '); # calling '
+          . $template . "\n";
+    }
+    return '$res .= &' . $sub . '(@_); # calling ' . $template . "\n";
 }
 
 sub attrs {
@@ -127,6 +148,7 @@ sub dump {
 1;
 
 package Soy::command_call;
+use Plosurin::SoyTree;
 use base 'Soy::command_call_self';
 use strict;
 use warnings;
@@ -169,28 +191,42 @@ sub dump {
 
 package Soy::command_param;
 use base 'Soy::base';
-
-package Soy::command_param_self;
-use base 'Soy::base';
-use strict;
 use warnings;
-use v5.10;
+use strict;
 use Data::Dumper;
+
+sub as_perl5 {
+    my $self = shift;
+
+    #    my $ctx = shift;
+    #die Dumper($self);
+    #die $self->childs
+    my $str = join ' . ', map { $_->as_perl5(@_) } @{ $self->childs };
+    return qq!'$self->{name}' => $str!;
+}
 
 sub dump {
     my $self = shift;
-    return {
-        %{ $self->SUPER::dump() },
-        name  => $self->{name},
-        value => $self->{value}
-    };
+    my %res = ( %{ $self->SUPER::dump() }, name => $self->{name}, );
+    $res{value} = $self->{value} if exists $self->{value};
+    \%res;
 }
+
+package Soy::command_param_self;
+use base 'Soy::command_param';
+
 package Soy::Node;
 use base 'Soy::base';
+
+sub childs {
+    [ $_[0]->{obj} ];
+}
+
 sub as_perl5 {
     my $self = shift;
-    return $self->{obj}->as_perl5(@_)
+    return $self->{obj}->as_perl5(@_);
 }
+
 package Plosurin::SoyTree;
 use strict;
 use warnings;
@@ -223,6 +259,7 @@ sub parse {
     my $str  = shift || return [];
     my $q    = shift || qr{
      <extends: Plosurin::Grammar>
+#    <debug:step>
     \A  <[content]>* \Z
     }xms;
     if ( $str =~ $q->with_actions( new Soy::Actions:: ) ) {
@@ -241,7 +278,6 @@ sub raw_tree {
     $_[0]->{_tree} || {};
 }
 
-
 =head2 reduce_tree
 Union raw_text nodes
 =cut
@@ -250,14 +286,16 @@ sub reduced_tree {
     my $self = shift;
     my $tree = shift || $self->raw_tree->{content} || return [];
     my @res  = ();
-    while ( my $node = shift @$tree ) {
+    my @tmp = @$tree;    #copy for protect from modify orig tree
+    while ( my $node = shift @tmp ) {
 
         #skip first node
         #skip all non text nodes
         if ( ref( $node->{obj} ) ne 'Soy::raw_text' || scalar(@res) == 0 ) {
-            if ( my $sub_tree = $node->{obj}->childs ) {
-                $node->{obj}->childs( $self->reduced_tree($sub_tree) );
-            }
+##            if ( my $sub_tree = $node->{obj}->childs ) {
+##                $node->{obj}->childs( $self->reduced_tree($sub_tree) );
+######                 $self->reduced_tree($sub_tree);
+            #           }
             push @res, $node;
             next;
         }
@@ -287,7 +325,7 @@ return [ "clasname", {key1=>key2} ]
 sub dump_tree {
     my $self = shift;
     my @res  = ();
-    foreach my $rec (@{shift||[]}) {
+    foreach my $rec ( @{ shift || [] } ) {
         my $obj = $rec->{obj};
         push @res, { ref($obj) => $obj->dump() };
     }
