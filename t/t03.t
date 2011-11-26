@@ -50,7 +50,6 @@ my $p5  = new Plosurin::To::Perl5(
 );
 my $st1 =
   new Plosurin::SoyTree(
-#    src => '{call t.test.2 }{param t}ok{/param}{param t32 : 1/}{/call}' );
     src => '{$par}' );
 my $t2 = $st1->reduced_tree;
 
@@ -61,9 +60,9 @@ $p5->start_write();
 $p5->write($f);
 $p5->end_write();
 
-
+ok $p5->wr->{code}, 'code gen';
 #say $p5->wr->{code};
-diag Dumper $p5->{tmpls};
+#diag Dumper $p5->{tmpls};
 #warn Dumper $p5->wr;
 exit;
 my $namespace = $f->namespace;

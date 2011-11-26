@@ -121,7 +121,7 @@ $str=<<'TXT3';
 
 TXT3
 
-#=pod
+=pod
 my $q = qr{
      <extends: Plosurin::Template::Grammar>
     <matchline>
@@ -134,7 +134,7 @@ if ($str =~ $q) {
 } else {"No eq!"}
 
 exit;
-#=cut
+=cut
 my $f2 = $p->parse($str, 's');
 is scalar($f2->templates),3 ,"java doc withot param";
 

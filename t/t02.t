@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;    # last test to print
+use Test::More tests => 11;    # last test to print
 use Data::Dumper;
 use v5.10;
 use Regexp::Grammars;
