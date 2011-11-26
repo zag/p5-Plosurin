@@ -34,6 +34,9 @@ my @grammars = (
             'Soy::raw_text' => {}
         }
     ], 'raw text',
+    '{$acr}', [ {
+            'Soy::command_print' => {}
+        } ], undef,
 
     "{print 2}", [
         {

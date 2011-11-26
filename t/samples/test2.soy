@@ -2,17 +2,16 @@
 /**
   * Comment line
   * @param par1 Some comment
-  * @param par2 Some comment
  */
 {template .Hello}
-  <div>Test</div>
+  <div>Test </div> {$par1}
 {/template}
 
 /**
   * Comment line1
   * @param par1 Some comment
-  * @param par2 Some comment
  */
 {template .Hello2}
-  <div>Test</div>
+  <div>Test</div> Привет
+   {call .Hello data="all"/}
 {/template}

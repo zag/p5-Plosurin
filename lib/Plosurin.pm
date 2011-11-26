@@ -23,6 +23,8 @@ Plosurin - Perl 5 implementation of Closure Templates
 =cut
 
 package Plo::File;
+use Plosurin::SoyTree;
+use base 'Soy::base';
 
 sub new {
     my $class = shift;
@@ -40,6 +42,11 @@ sub namespace {
     $_[0]->{namespace}->{id};
 }
 
+sub childs {
+    my $self = shift;
+    return [ $self->templates ];
+}
+
 =head2 templates
 Return array of tempaltes
 =cut
@@ -52,6 +59,8 @@ sub templates {
 package Plo::template;
 use strict;
 use warnings;
+use Plosurin::SoyTree;
+use base 'Soy::base';
 
 sub new {
     my $class = shift;
@@ -66,6 +75,20 @@ sub comment {
 }
 sub params { @{ $_[0]->{header}->{h_params} } }
 sub full_name { my $self = shift; $self->{namespace} . $self->name }
+
+sub namespace {
+    $_[0]->{namespace}->{id};
+}
+
+#parse body and return Soy tree
+sub childs {
+    my $self = shift;
+    my $plo = new Plosurin::SoyTree( src => $self->body );
+    die $plo unless ref $plo;
+    my $reduced = $plo->reduced_tree;
+    return $reduced;
+}
+
 1;
 
 package Plosurin;
@@ -77,6 +100,8 @@ use Regexp::Grammars;
 use Plosurin::Grammar;
 use Plosurin::Context;
 use Plosurin::SoyTree;
+use Plosurin::To::Perl5;
+use Plosurin::Writer::Perl5;
 our $file = "???";
 
 sub new {
@@ -108,87 +133,28 @@ Export nodes as perl5 package
 use Data::Dumper;
 
 sub as_perl5 {
-    my $self  = shift;
-    my $opt   = shift;
+    my $self = shift;
+    my $opt  = shift;
     return " need at least one $file" unless scalar(@_);
     my @files = map { ( ref($_) eq 'ARRAY' ) ? @{$_} : ($_) } @_;
-    my $res   = '';
-    my @alltemplates=();
-    #1. collect template_full_name (namespace+name)
-    my $ctx = new Plosurin::Context::(@files);
-    $ctx->{package} = $opt->{package} || die "
+    my @alltemplates = ();
+
+    my $package = $opt->{package} || die "
       use as_perl5( { package => ... } ) !";
-    foreach my $file (@files) {
-        my $tmpl_code;
-        foreach my $tmpl ( $file->templates ) {
-            my $tmpl_name = $tmpl->name;
-            my $namespace = $file->namespace;
-            ( my $converted_name = $namespace . $tmpl_name ) =~ tr/\./_/;
 
-            my $plo = new Plosurin::SoyTree( src => $tmpl->body );
-            die $plo unless ref $plo;
-            my $reduced = $plo->reduced_tree;
-            my $code = 'my $res = "";';
-            foreach my $node (@$reduced) {
-                $ctx->{namespace} = $namespace;
-                $code .= $node->as_perl5( $ctx );
-            }
-            $code .='return $res;';
-
-            push @alltemplates,{
-                tmpl=>$tmpl,
-                namespace=>$namespace,
-                name=>$tmpl_name,
-                perl5_name=>$converted_name,
-                package_name=>$opt->{package}. "::".$converted_name, 
-                code => $code
-            };
-            $tmpl_code .= <<"SUB"
-=head1 $converted_name
-
-@{[ $tmpl->comment ]}
-
-( I<src>: C<@{[ $file->{file} ]}>, I<template name>: C<$tmpl_name> )
-=cut
-sub $converted_name \{
-       $code
-\}
-SUB
-        }
-        $res .= <<"TMPL";
-package $opt->{package};
-use strict;
-use utf8;
-=head1 NAME
-
-$opt->{package} - set of generated teplates 
-
-=head1 SYNOPSIS
-
- use Test;
- print &Test::some_template(key1=>val1);
-
-=head1 DESCRIPTION
-
-$opt->{package} - set of generated teplates by plosurin
-
-=cut
-
-$tmpl_code
-1;
-__END__
-
-=head1 SEE ALSO
-
-Closure Templates Documentation L<http://code.google.com/closure/templates/docs/overview.html>
-
-Perl 6 implementation L<https://github.com/zag/plosurin>
-
-=cut
-TMPL
-    }
-     wantarray() ? ($res, @alltemplates) : $res;
+    my $ctx = new Plosurin::Context(@files);
+    my $p5  = new Plosurin::To::Perl5(
+        'context' => $ctx,
+        'writer'  => new Plosurin::Writer::Perl5,
+        'package' => $package,
+    );
+    $p5->start_write();
+    $p5->write(@files);
+    $p5->end_write();
+    my $res = $p5->wr->{code};
+    wantarray() ? ( $res, @{ $p5->{tmpls} } ) : $res;
 }
+
 1;
 __END__
 

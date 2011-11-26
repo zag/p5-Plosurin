@@ -9,6 +9,8 @@ use IO::File;
 use Plosurin;
 use HTTP::Server::Simple::WebDAO;
 use Plosurin::HTTP;
+use Plosurin::To::Perl5;
+use Plosurin::Writer::Perl5;
 
 my ( $help, $man );
 my ( $type, $package, $mode, $port ) = ( "perl5", 'MyApp::Tmpl', 'soy', 8080 );
@@ -18,7 +20,7 @@ my %opt = (
     type    => \$type,
     package => \$package,
     mode    => \$mode,
-    port    =>\$port,
+    port    => \$port,
 );
 GetOptions( \%opt, 'help|?', 'man', 'c=s', "type|t:s", 'package|p=s',
     'mode|m=s', 'port=s' )
@@ -35,6 +37,7 @@ if ( $type =~ /^perl/ and !$package ) {
 }
 
 if ( $mode eq 'web' ) {
+
     #check if web server mode
     my $srv = new HTTP::Server::Simple::WebDAO::($port);
     $srv->set_config( wdEngine => "Plosurin::HTTP", wdDebug => 3 );
@@ -54,7 +57,9 @@ else {
     my $p = new Plosurin::;
     my $nodes = $p->parse( $in, $infile // "STDIN" );
     die "Can't parse $infile" unless $nodes;
-    say $p->as_perl5( { package => $package }, $nodes );
+
+    # ''. for scalar context
+    say '' . $p->as_perl5( { package => $package }, $nodes );
 }
 exit 0;
 

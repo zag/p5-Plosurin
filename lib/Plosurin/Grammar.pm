@@ -36,11 +36,11 @@ qr{
         <[h_comment]>+ % (\s+)
         (?: <[h_params]>+ % (\s+) )?
         <javadoc_end>
-    <rule: javadoc_start>\/\*
+    <rule: javadoc_start>\/\*\*?
         | \/\*\n<matchline><fatal:(?{say "JavaDoc must start with /**! at $file line $MATCH{matchline} : $CONTEXT" })>
     <rule: javadoc_end> \*\/
 #        | <matchline><fatal:(?{say "JavaDoc must end with */!  at $file line $MATCH{matchline} : $CONTEXT" })>
-    <rule: h_comment>\* <raw_str> 
+    <rule: h_comment>\* <raw_str>?
     <rule: raw_str> [^@\n]+
     <objrule: Plo::h_params> \* \@param<is_notreq=(\?)>? <id> <raw_str>
     <rule: template_block>
@@ -87,7 +87,7 @@ qr{
 #    <require: (?{ length($CAPTURE) > 0 })>
 #        <fatal:(?{say "May be command ? $MATCH{raw_text_add} at $MATCH{matchpos}"})>
     <objrule: Soy::command_print>
-                   \{print <variable>\}
+                   \{<is_explicit=(print)>? <variable>\} 
     <objrule: Soy::command_include>
               \{include <[attribute]>{2} % <_sep=(\s+)> \}
              |\{include <matchpos><fatal:(?{say "'Include' require 2 attrs at $MATCH{matchpos}"})>

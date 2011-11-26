@@ -1,10 +1,11 @@
 use Module::Build;
-use 5.8.0;
+use v5.12;
 Module::Build->new
     ( module_name => 'Plosurin',
     license => 'perl',
    prereq => {
-	'Test::Class'=>0,
+	'Regexp::Grammars'=>1.014,
+	'HTTP::Server::Simple::WebDAO'=>0.01
 	     },
     script_files=>[qw!
 	scripts/p5losurin
