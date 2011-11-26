@@ -17,7 +17,8 @@ DEPENDENCIES
 
 This module requires these other modules and libraries:
 
- XML::Flow;
+ Regexp::Grammars;
+ HTTP::Server::Simple::WebDAO;
 
 COPYRIGHT AND LICENCE
 
