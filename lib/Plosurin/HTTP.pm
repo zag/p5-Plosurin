@@ -4,7 +4,20 @@
 #
 #       AUTHOR:  Aliaksandr P. Zahatski, <zahatski@gmail.com>
 #===============================================================================
-#$Id$
+=head1 NAME
+
+Plosurin::HTTP - Serve web mode
+
+=head1 SYNOPSIS
+
+         plosurin.p5 -t web 
+
+=head1 DESCRIPTION
+
+Plosurin::HTTP - Serve web mode
+
+=cut
+
 package Plosurin::HTTP;
 use strict;
 use warnings;
@@ -76,7 +89,7 @@ sub _parse_file {
 
 param 
     path = /path/to/file.soy
-    tempalate = .name || [.soyweb]
+    tempalate = .name || [.html]
 =cut
 
 sub RenderSoy {
@@ -92,7 +105,7 @@ sub RenderSoy {
     my ( $code, @tmpls ) = @$content;
 
     #template to render
-    my $name2render = $args{template} || ".soyweb";
+    my $name2render = $args{template} || ".html";
     my $tmpl;
     foreach my $t (@tmpls) {
         next unless $t->{name} eq $name2render;
@@ -174,4 +187,25 @@ $list
 TXT
 }
 1;
+__END__
+
+=head1 SEE ALSO
+
+Closure Templates Documentation L<http://code.google.com/closure/templates/docs/overview.html>
+
+Perl 6 implementation L<https://github.com/zag/plosurin>
+
+
+=head1 AUTHOR
+
+Zahatski Aliaksandr, <zag@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2011 by Zahatski Aliaksandr
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
 

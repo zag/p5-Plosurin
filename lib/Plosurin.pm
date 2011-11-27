@@ -4,7 +4,6 @@
 #
 #       AUTHOR:  Aliaksandr P. Zahatski, <zahatski@gmail.com>
 #===============================================================================
-#$Id$
 
 =head1 NAME
 
@@ -174,8 +173,7 @@ Zahatski Aliaksandr, <zag@cpan.org>
 Copyright (C) 2011 by Zahatski Aliaksandr
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.8 or,
-at your option, any later version of Perl 5 you may have available.
+it under the same terms as Perl itself.
 
 =cut
 

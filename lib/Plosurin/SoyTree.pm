@@ -4,7 +4,20 @@
 #
 #       AUTHOR:  Aliaksandr P. Zahatski, <zahatski@gmail.com>
 #===============================================================================
-#$Id$
+=head1 NAME
+
+Plosurin::SoyTree - syntax tree
+
+=head1 SYNOPSIS
+
+    my $plo = new Plosurin::SoyTree( src => $self->body );
+
+=head1 DESCRIPTION
+
+Plosurin::SoyTree - syntax tree
+
+=cut
+
 package Soy::Actions;
 use strict;
 use warnings;
@@ -235,10 +248,11 @@ use Data::Dumper;
 use Plosurin::Grammar;
 use Regexp::Grammars;
 
-=head2 
+=head2 new
+
     my $st = new Plosurin::SoyTree( src => "txt");
     my $tree = $stree->parse( "text")
-   $
+
 =cut
 
 sub new {
@@ -251,7 +265,9 @@ sub new {
 }
 
 =head2  parse
+
 return [node1, node2]
+
 =cut
 
 sub parse {
@@ -271,7 +287,9 @@ sub parse {
 }
 
 =head2 raw 
+
 return syntax tree
+
 =cut
 
 sub raw_tree {
@@ -279,7 +297,9 @@ sub raw_tree {
 }
 
 =head2 reduce_tree
+
 Union raw_text nodes
+
 =cut
 
 sub reduced_tree {
@@ -320,6 +340,7 @@ sub reduced_tree {
 
 Minimalistic tree
 return [ "clasname", {key1=>key2} ] 
+
 =cut
 
 sub dump_tree {
@@ -332,4 +353,25 @@ sub dump_tree {
     \@res;
 }
 1;
+__END__
+
+=head1 SEE ALSO
+
+Closure Templates Documentation L<http://code.google.com/closure/templates/docs/overview.html>
+
+Perl 6 implementation L<https://github.com/zag/plosurin>
+
+
+=head1 AUTHOR
+
+Zahatski Aliaksandr, <zag@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2011 by Zahatski Aliaksandr
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
 

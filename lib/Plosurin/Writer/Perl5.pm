@@ -4,7 +4,25 @@
 #
 #       AUTHOR:  Aliaksandr P. Zahatski, <zahatski@gmail.com>
 #===============================================================================
-#$Id$
+=head1 NAME
+
+Plosurin::Writer::Perl5 - perl5 writer
+
+=head1 SYNOPSIS
+
+    my $p5  = new Plosurin::To::Perl5(
+           'context' => $ctx,
+           'writer'  => new Plosurin::Writer::Perl5,
+           'package' => $package,
+        );
+
+  
+=head1 DESCRIPTION
+
+Plosurin::Writer::Perl5 - perl6 writer
+
+=cut
+
 package Plosurin::Writer::Perl5;
 use strict;
 use warnings;
@@ -79,4 +97,25 @@ sub appendOutputVar {
     }
 }
 1;
+__END__
+
+=head1 SEE ALSO
+
+Closure Templates Documentation L<http://code.google.com/closure/templates/docs/overview.html>
+
+Perl 6 implementation L<https://github.com/zag/plosurin>
+
+
+=head1 AUTHOR
+
+Zahatski Aliaksandr, <zag@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2011 by Zahatski Aliaksandr
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
 

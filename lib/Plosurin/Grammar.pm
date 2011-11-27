@@ -1,9 +1,23 @@
 #===============================================================================
 #
-#  DESCRIPTION:  grammar
+#  DESCRIPTION:  grammars
 #
 #       AUTHOR:  Aliaksandr P. Zahatski, <zahatski@gmail.com>
 #===============================================================================
+=head1 NAME
+
+Plosurin::Grammar - Grammars for Closure Templates 
+
+=head1 SYNOPSIS
+
+        use Regexp::Grammars;
+        use Plosurin::Grammar;
+
+=head1 DESCRIPTION
+
+Plosurin::Grammar - Grammars for Closure Templates 
+
+=cut
 package Plosurin::Grammar;
 use strict;
 use warnings;
@@ -123,4 +137,25 @@ qr{
 }xms;
 
 1;
+__END__
+
+=head1 SEE ALSO
+
+Closure Templates Documentation L<http://code.google.com/closure/templates/docs/overview.html>
+
+Perl 6 implementation L<https://github.com/zag/plosurin>
+
+
+=head1 AUTHOR
+
+Zahatski Aliaksandr, <zag@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2011 by Zahatski Aliaksandr
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
 

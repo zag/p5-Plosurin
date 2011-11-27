@@ -97,7 +97,7 @@ ok ($p->as_perl5({package=>"MyApp"},$file) =~ m/Main_sample_sub/, "convert call"
 $str=<<'TXT3';
 {namespace Test.Sdsr}
 /* * asdasd  */
-{template .soyweb}
+{template .soyhtml}
   call .page
 {/template}
 
