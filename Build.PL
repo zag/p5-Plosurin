@@ -8,7 +8,7 @@ Module::Build->new
 	'HTTP::Server::Simple::WebDAO'=>0.01
 	     },
     script_files=>[qw!
-	scripts/p5losurin
+	scripts/plosurin.p5
     !],
    dist_version_from=>'lib/Plosurin.pm',
     meta_merge=>{
