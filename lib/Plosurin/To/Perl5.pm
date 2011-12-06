@@ -277,6 +277,40 @@ sub command_print {
     $w->appendOutputVar( '$args{\'' . $expr . '\'}' );
 }
 
+use Perl6::Pod::To::XHTML; 
+use Perl6::Pod::To;
+use Perl6::Pod::Lib;
+#pod6xhtml  -nb -t div -M Perl6::Pod::Lib -c \'=Include $file($rule)'
+sub command_import {
+    my ( $self, $n ) = @_;
+    my $w    = $self->wr;
+    my $file = $n->attrs->{file};
+    my $rule = $n->attrs->{rule} || '';
+    unless (-e $file ) {
+        die "File for import : $file not found!"
+    }
+    my %args = (doctype =>'div', body=>0);
+    my  $in_fd = "=Include $file" .( $rule ? "($rule)" : '');
+    $in_fd = \"=begin pod \n$in_fd\n=end pod";
+    my $str ='';
+    open FH,'>',\$str;
+    my $p = Perl6::Pod::To::to_abstract( 'Perl6::Pod::To::XHTML', \*FH, %args );
+    $p->begin_input;
+    #include libs ( see $Perl6::Pod::Lib::PERL6POD )
+    my @libs = (qw/Perl6::Pod::Lib/);
+    if (@libs) {
+        my $use  = join "\n" => map { "=begin pod\n=use $_\n=end pod" } @libs;
+        $use .= "\n";
+        $p->_parse_chunk(\$use);
+    }
+    $p->_parse_chunk($in_fd);
+    $p->end_input;
+    close FH;
+    #replace ' -> \'
+    $str =~ s/\'/\\'/g;
+    $w->appendOutputVar( qq!'$str'! );
+}
+
 sub AUTOLOAD {
     my $self   = shift;
     my $method = $AUTOLOAD;

@@ -94,6 +94,7 @@ qr{
         |<obj=command_if>
         |<obj=command_call_self>
         |<obj=command_call>
+        |<obj=command_import>
         |<obj=raw_text_add>
 
         )
@@ -134,6 +135,10 @@ qr{
     <objrule: Soy::command_param> \{param <name=(.*?)> \}
                     <[content]>+?
                   \{\/param\}
+    # {import file="test.pod6" rule=":public"}
+    # {import file="test.pod6" }
+    <objrule: Soy::command_import> \{import <[attribute]>+ % <_sep=(\s+)> \/?\}
+
 }xms;
 
 1;

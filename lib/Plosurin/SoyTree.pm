@@ -48,6 +48,17 @@ sub new {
     bless( ( $#_ == 0 ) ? shift : {@_}, ref($class) || $class );
 }
 
+
+sub attrs {
+    my $self = shift;
+    my $attr = $self->{attribute} || [];
+    my %attr = ();
+    foreach my $rec (@$attr) {
+        $attr{ $rec->{name} } = $rec->{value};
+    }
+    return \%attr;
+}
+
 sub childs {
     my $self = shift;
     if (@_) {
@@ -62,16 +73,20 @@ sub as_perl5 { die "$_[0]\-\>as_perl5 unimplemented " }
 sub dump {
     my $self   = shift;
     my $childs = $self->childs;
+    my $res = {};
     if ( scalar(@$childs) ) {
-        return {
-            childs => [
+        $res->{childs} = [
                 map {
                     { ref( $_->{obj} ) => $_->{obj}->dump }
                   } @$childs
             ]
         };
+    if (scalar( keys %{$self->attrs})) {
+        $res->{attrs}    = $self->attrs;
     }
-    {};
+
+    $res;
+
 }
 1;
 
@@ -141,20 +156,9 @@ sub as_perl5 {
     return '$res .= &' . $sub . '(@_); # calling ' . $template . "\n";
 }
 
-sub attrs {
-    my $self = shift;
-    my $attr = $self->{attribute} || [];
-    my %attr = ();
-    foreach my $rec (@$attr) {
-        $attr{ $rec->{name} } = $rec->{value};
-    }
-    return \%attr;
-}
-
 sub dump {
     my $self = shift;
     my $res  = $self->SUPER::dump;
-    $res->{attrs}    = $self->attrs;
     $res->{template} = $self->{tmpl_name};
     $res;
 }
@@ -240,6 +244,11 @@ sub as_perl5 {
     return $self->{obj}->as_perl5(@_);
 }
 
+package Soy::command_import;
+use strict;
+use warnings;
+use base 'Soy::base';
+1;
 package Plosurin::SoyTree;
 use strict;
 use warnings;

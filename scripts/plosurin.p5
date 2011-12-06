@@ -53,13 +53,12 @@ else {
         $in_fd = \*STDIN;
     }
     my $in;
-    { undef $/; $in = <$in_fd> };
+    { local $/; undef $/; $in = <$in_fd> };
     my $p = new Plosurin::;
     my $nodes = $p->parse( $in, $infile // "STDIN" );
     die "Can't parse $infile" unless $nodes;
-
     # ''. for scalar context
-    say '' . $p->as_perl5( { package => $package }, $nodes );
+    say  '' . $p->as_perl5( { package => $package }, $nodes );
 }
 exit 0;
 

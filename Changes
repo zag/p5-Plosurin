@@ -1,4 +1,5 @@
 Revision history for Perl extension Plosurin.
-
+0.1_2
+    + add import from pod6 files {import}
 0.1_1
     + initial release of Plosurin suite

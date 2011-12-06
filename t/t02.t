@@ -4,10 +4,13 @@
 #
 #       AUTHOR:  Aliaksandr P. Zahatski, <zahatski@gmail.com>
 #===============================================================================
+
+package main;
 use strict;
 use warnings;
 
-use Test::More tests => 11;    # last test to print
+
+use Test::More tests => 13;    # last test to print
 use Data::Dumper;
 use v5.10;
 use Regexp::Grammars;
@@ -16,7 +19,7 @@ use Plosurin::SoyTree;
 
 my $q = qr{
      <extends: Plosurin::Grammar>
-#    <debug:step>
+    <debug:step>
     \A  <[content]>* \Z
 }xms;
 
@@ -26,7 +29,7 @@ my $STOP_TREE = 0;
 # Looks like you failed 1 test of 1.
 @t = ();
 
-#@t = ('{call .test }{param test : 1 /}{/call}');
+#@t = ('{call .test }{param test : 1 /}{param data}text{/param}{/call}');
 
 my @grammars = (
     "<h1>test</h2>", [
@@ -182,7 +185,6 @@ my @grammars = (
     [
         {
             'Soy::command_call' => {
-                'attrs'    => {},
                 'template' => '.test',
                 'childs'   => [
                     {
@@ -207,7 +209,6 @@ my @grammars = (
     [
         {
             'Soy::command_call' => {
-                'attrs'    => {},
                 'template' => 'test.ok',
                 'childs'   => [
                     {
@@ -223,6 +224,23 @@ my @grammars = (
                         }
                     }
                 ]
+            }
+        }
+    ],
+    undef,
+
+    '{import file="test.pod6" /}',
+    [ { 'Soy::command_import' => { 'attrs' => { 'file' => 'test.pod6' } } } ],
+    undef,
+
+    '{import file="test.pod6" rule=":include" /}',
+    [
+        {
+            'Soy::command_import' => {
+                'attrs' => {
+                    'file' => 'test.pod6',
+                    'rule' => ':include'
+                }
             }
         }
     ],
