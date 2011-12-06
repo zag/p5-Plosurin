@@ -94,7 +94,7 @@ package Plosurin;
 use strict;
 use warnings;
 use v5.10;
-our $VERSION = '0.0_1';
+our $VERSION = '0.0_2';
 use Regexp::Grammars;
 use Plosurin::Grammar;
 use Plosurin::Context;
