@@ -94,6 +94,7 @@ sub start_write {
     my $w    = $self->wr;
     return if $w->{start_write_done}++;
     $w->print(<<"TXT");
+# Please don't edit this file by hand.
 package $self->{package};
 use strict;
 use utf8;
