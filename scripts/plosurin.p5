@@ -58,6 +58,7 @@ else {
     my $nodes = $p->parse( $in, $infile // "STDIN" );
     die "Can't parse $infile" unless $nodes;
     # ''. for scalar context
+
     say  '' . $p->as_perl5( { package => $package }, $nodes );
 }
 exit 0;

@@ -1,6 +1,6 @@
 #===============================================================================
 #
-#  DESCRIPTION:  Test Expr Grammasr
+#  DESCRIPTION:  Test Expr Grammars
 #
 #       AUTHOR:  Aliaksandr P. Zahatski, <zahatski@gmail.com>
 #===============================================================================
@@ -13,18 +13,19 @@ use Test::More 'no_plan';                      # last test to print
 use Regexp::Grammars;
 
 my $q = qr{
+    <nocontext:>
     <expr>
 #level 
     #ternary
     <rule: expr> <Main=add> \? <True=add> \: <False=add>
             |<MATCH=add>
 #level 
-    <objrule: add>
-                <X=mult> <Op=([+-])> <Y=expr> 
+    <rule: add>
+                <a=mult> <op=([+-])> <b=expr> 
                 | <MATCH=mult> 
 
-    <objrule: mult> 
-                <X=term> <Op=(\^)> <Y=mult>
+    <rule: mult> 
+                <a=term> <op=([*/])> <b=mult>
                 | <MATCH=term>
 
      <objrule: term> 
@@ -62,7 +63,7 @@ my $q = qr{
 
 }xms;
 
-my $t = q!2 + 23 ? 2+2+$true9+'e' : 0!;
+my $t = q! 3 + 5 * 6 !;
 if ($t =~ $q) {
     use Data::Dumper 'Dumper';
     print Dumper %/;

@@ -4,6 +4,7 @@
 #
 #       AUTHOR:  Aliaksandr P. Zahatski, <zahatski@gmail.com>
 #===============================================================================
+
 =head1 NAME
 
 Plosurin::SoyTree - syntax tree
@@ -32,11 +33,21 @@ sub new {
 sub content_ {
     my $self = shift;
     my ($a) = @_;
-
+    warn "Content";
     #   say Dumper( $a );
     #    say Dumper(\@_);
     #    @_
     $a;
+}
+
+sub command_foreach {
+    my $self = shift;
+    warn "Action !!!";
+#    warn Dumper( \@_ );
+    die;
+
+    #    Soy::command_foreach
+    #    return
 }
 1;
 
@@ -47,7 +58,6 @@ sub new {
     my $class = shift;
     bless( ( $#_ == 0 ) ? shift : {@_}, ref($class) || $class );
 }
-
 
 sub attrs {
     my $self = shift;
@@ -73,16 +83,16 @@ sub as_perl5 { die "$_[0]\-\>as_perl5 unimplemented " }
 sub dump {
     my $self   = shift;
     my $childs = $self->childs;
-    my $res = {};
+    my $res    = {};
     if ( scalar(@$childs) ) {
         $res->{childs} = [
-                map {
-                    { ref( $_->{obj} ) => $_->{obj}->dump }
-                  } @$childs
-            ]
-        };
-    if (scalar( keys %{$self->attrs})) {
-        $res->{attrs}    = $self->attrs;
+            map {
+                { ref( $_->{obj} ) => $_->{obj}->dump }
+              } @$childs
+        ];
+    }
+    if ( scalar( keys %{ $self->attrs } ) ) {
+        $res->{attrs} = $self->attrs;
     }
 
     $res;
@@ -249,6 +259,32 @@ use strict;
 use warnings;
 use base 'Soy::base';
 1;
+
+package Soy::command_foreach;
+use strict;
+use warnings;
+use base 'Soy::base';
+
+sub dump {
+    my $self = shift;
+    my %res  = (
+        %{ $self->SUPER::dump() },
+
+        #    expression => $self->{expression}
+    );
+    if ( exists $self->{command_foreach_ifempty} ) {
+        my $ife = $self->{command_foreach_ifempty};
+        $res{ifempty} = $ife->dump;
+
+    }
+    \%res;
+}
+
+package Soy::command_foreach_ifempty;
+use strict;
+use warnings;
+use base 'Soy::base';
+
 package Plosurin::SoyTree;
 use strict;
 use warnings;
@@ -259,8 +295,11 @@ use Regexp::Grammars;
 
 =head2 new
 
-    my $st = new Plosurin::SoyTree( src => "txt");
-    my $tree = $stree->parse( "text")
+    my $st = new Plosurin::SoyTree( 
+            src => "txt",
+            srcfile=>"filesrc",
+            start_line=>1
+            );
 
 =cut
 

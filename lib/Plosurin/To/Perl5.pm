@@ -26,8 +26,9 @@ package Plosurin::To::Perl5;
 use strict;
 use warnings;
 use v5.10;
-use vars qw($AUTOLOAD);
 use Data::Dumper;
+use Plosurin::AbstractVisiter;
+use base 'Plosurin::AbstractVisiter';
 
 =head2 new context=>$ctx, writer=>$writer, package=>"Tmpl"
 
@@ -58,36 +59,7 @@ sub wr     { $_[0]->{writer} }
 sub context { $_[0]->{context} }
 sub ctx     { $_[0]->{context} }
 
-sub visit {
-    my $self = shift;
-    my $n    = shift;
 
-    #get type of file
-    my $ref = ref($n);
-    unless ( ref($n) && UNIVERSAL::isa( $n, 'Soy::base' )
-        || UNIVERSAL::isa( $n, 'Plo::File' )
-        || UNIVERSAL::isa( $n, 'Plo::template' ) )
-    {
-        die "Unknown node type $n (not isa Soy::base)";
-    }
-
-    my $method = ref($n);
-    $method =~ s/.*:://;
-
-    #make method name
-    $self->$method($n);
-}
-
-sub visit_childs {
-    my $self = shift;
-    foreach my $n (@_) {
-        die "Unknow type $n (not isa Soy::base)"
-          unless UNIVERSAL::isa( $n, 'Soy::base' );
-        foreach my $ch ( @{ $n->childs } ) {
-            $self->visit($ch);
-        }
-    }
-}
 
 sub start_write {
     my $self = shift;
@@ -252,11 +224,13 @@ TMPL
 
         #set current namespace (used for {call})
         $self->ctx->{namespace} = $namespace;
+        #parse template
         $self->visit_childs($t);
         $w->initOutputVar();
         $w->say("return \$$vname;");
         $w->dec_ident;
         $w->say('}');
+        $w->say(''); # empty line
 
         #collect statistic
         push @{ $self->{tmpls} },
@@ -312,22 +286,6 @@ sub command_import {
     $w->appendOutputVar( qq!'$str'! );
 }
 
-sub AUTOLOAD {
-    my $self   = shift;
-    my $method = $AUTOLOAD;
-    $method =~ s/.*:://;
-    return if $method eq 'DESTROY';
-
-    #check if can
-    if ( $self->can($method) ) {
-        my $superior = "SUPER::$method";
-        $self->$superior(@_);
-    }
-    else {
-        die "NOT IMPLEMENTED $method !";
-    }
-
-}
 
 1;
 __END__

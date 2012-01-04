@@ -142,6 +142,7 @@ sub as_perl5 {
       use as_perl5( { package => ... } ) !";
 
     my $ctx = new Plosurin::Context(@files);
+#    print Dumper (\@files);
     my $p5  = new Plosurin::To::Perl5(
         'context' => $ctx,
         'writer'  => new Plosurin::Writer::Perl5,

@@ -9,8 +9,7 @@ package main;
 use strict;
 use warnings;
 
-
-use Test::More tests => 13;    # last test to print
+use Test::More tests => 15;    # last test to print
 use Data::Dumper;
 use v5.10;
 use Regexp::Grammars;
@@ -24,13 +23,18 @@ my $q = qr{
 }xms;
 
 my @t;
-my $STOP_TREE = 0;
+my $STOP_TREE = 1;
 
 # Looks like you failed 1 test of 1.
 @t = ();
 
-#@t = ('{call .test }{param test : 1 /}{param data}text{/param}{/call}');
-
+@t = (
+    '<test>
+    {foreach $o in $s }1
+    {ifempty} olo
+    {/foreach}
+{print $a}'
+);
 my @grammars = (
     "<h1>test</h2>", [
         {
@@ -244,7 +248,27 @@ my @grammars = (
             }
         }
     ],
-    undef
+    undef,
+
+    '{foreach $o in $s }1{/foreach}',
+    [
+        {
+            'Soy::command_foreach' =>
+              { 'childs' => [ { 'Soy::raw_text' => {} } ] }
+        }
+    ],
+    '{foreach ...}...{/foreach}',
+
+    '{foreach $o in $s }1{ifempty}2{/foreach}',
+    [
+        {
+            'Soy::command_foreach' => {
+                'ifempty' => { 'childs' => [ { 'Soy::raw_text' => {} } ] },
+                'childs' => [ { 'Soy::raw_text' => {} } ]
+            }
+        }
+    ],
+    '{foreach ...}...{ifempty}...{/foreach}'
 
 );
 
@@ -253,8 +277,18 @@ while ( my ( $src, $extree, $name ) = splice( @grammars, 0, 3 ) ) {
     $name //= $src;
     my $plo = Plosurin::SoyTree->new( src => $src );
     unless ( ref($plo) ) { fail($name) }
+
+    #setup lines and files
+    use Plosurin::Utl::SetLinePos;
+    my $line_num_visiter = new Plosurin::Utl::SetLinePos::
+      offset  => 0,
+      srcfile => 'tests';
+
+    #    if ($STOP_TREE) { say Dumper( $plo->raw_tree ); exit; }
+    my $dtree = $line_num_visiter->visit( $plo->raw_tree->{content} );
+
     if ($STOP_TREE) { say Dumper( $plo->raw_tree ); exit; }
-    my $tree     = $plo->reduced_tree();
+    my $tree     = $plo->reduced_tree($dtree);
     my $res_tree = $plo->dump_tree($tree);
     is_deeply( $res_tree, $extree, $name )
       || do { say "fail Deeeple" . Dumper( $res_tree, $extree, ); exit; };

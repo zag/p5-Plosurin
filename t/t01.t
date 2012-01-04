@@ -136,7 +136,7 @@ if ($str =~ $q) {
 exit;
 =cut
 my $f2 = $p->parse($str, 's');
-is scalar($f2->templates),3 ,"java doc withot param";
+is scalar($f2->templates),3 ,"java doc without param";
 
 
 
