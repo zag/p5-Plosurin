@@ -23,7 +23,7 @@ my $q = qr{
 }xms;
 
 my @t;
-my $STOP_TREE = 1;
+my $STOP_TREE = 0;
 
 # Looks like you failed 1 test of 1.
 @t = ();
@@ -35,6 +35,8 @@ my $STOP_TREE = 1;
     {/foreach}
 {print $a}'
 );
+@t = ();
+
 my @grammars = (
     "<h1>test</h2>", [
         {

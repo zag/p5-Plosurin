@@ -6,70 +6,21 @@
 #===============================================================================
 #$Id$
 
+
+package main;
+
 use strict;
 use warnings;
 
-use Test::More 'no_plan';                      # last test to print
-use Regexp::Grammars;
+use Test::More tests=>2;                      # last test to print
 
-my $q = qr{
-    <nocontext:>
-    <expr>
-#level 
-    #ternary
-    <rule: expr> <Main=add> \? <True=add> \: <False=add>
-            |<MATCH=add>
-#level 
-    <rule: add>
-                <a=mult> <op=([+-])> <b=expr> 
-                | <MATCH=mult> 
+use Plosurin::Grammar;
+use Plosurin::SoyTree;
+use Data::Dumper;
+my $t2 = Soy::Expression->new(q!$w!)->parse({'w'=>'local_var'})->as_perl5;
+ok  $t2 =~ /\$local_var/, 'check map';
 
-    <rule: mult> 
-                <a=term> <op=([*/])> <b=mult>
-                | <MATCH=term>
-
-     <objrule: term> 
-              <MATCH=Literal> 
-            | <Sign=([+-])> \( <expr>\) #unary
-            | \( <MATCH=expr> \)
-
-    <token: Literal>
-                    <MATCH=Bool>   |
-                    <MATCH=Var>    |
-                    <MATCH=String> |
-                    <MATCH=Digit> 
-
-    <token: Ident>
-            <MATCH=([a-z,A-Z_](?: [a-zA-Z_0-9])* )>
-
-    <objtoken: Var>
-            \$ <Ident>
-
-    <objtoken: Bool>
-            true | false
-
-    <token: Digit>
-            [+-]? \d++ (?: \. \d++ )?+
-
-    <objtoken: String> 
-        \'
-      (
-         [^'\\\n\r] 
-        | \\ [nrtbf'"] 
-        # TODO \ua3ce
-      )*
-      \'
-
-
-}xms;
-
-my $t = q! 3 + 5 * 6 !;
-if ($t =~ $q) {
-    use Data::Dumper 'Dumper';
-    print Dumper %/;
-#    warn "Ok"
-} else {
- warn "BAD Reg"
-}
-ok "1";
+my $o = new Soy::Expression(q![ '2', 23+1+(1+3), 'w', $w ]!)->parse({'w'=>'local_var'});
+ok $o->as_perl5 =~ /\$local_var/, 'map vars';
+#diag Dumper [ new Soy::expression(q![ '2', 23+1, 'w', $w ]!)->parse() ];
 

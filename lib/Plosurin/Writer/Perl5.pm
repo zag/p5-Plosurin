@@ -33,6 +33,7 @@ sub new {
     my $ini = $#_ == 0 ? shift : {@_};
     $ini->{varstack} = [ { name => 'res', inited => 0 } ];
     $ini->{ident} = 0;
+    $ini->{var_map} //={};
     bless( $ini, ref($class) || $class );
 
 }
@@ -95,6 +96,16 @@ sub appendOutputVar {
         $self->say( '$' . $name . ' .= ' . $data . ';' )
 
     }
+}
+
+sub var_map {
+    my $self = shift;
+    return $self->{var_map};
+}
+
+sub set_var_map {
+    my ($self, $tmp_var, $new_var) = @_;
+    $self->var_map()->{$tmp_var} =$new_var;
 }
 1;
 __END__

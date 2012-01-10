@@ -75,7 +75,6 @@ qr{
 
 =head2 Plosurin::Grammar - soy grammar
 
-    qr{
     my $r = qr{
      <extends: Plosurin::Grammar>
     \A  <[content]>* \Z
@@ -95,13 +94,13 @@ qr{
         (?:
 
          <obj=raw_text>
-        |<obj=command_print>
         |<obj=command_include>
         |<obj=command_if>
         |<obj=command_call_self>
         |<obj=command_call>
         |<obj=command_import>
         |<obj=command_foreach>
+        |<obj=command_print>
         |<obj=raw_text_add>
 
         )
@@ -113,7 +112,7 @@ qr{
 #        <fatal:(?{say "May be command ? $MATCH{raw_text_add} at $MATCH{matchpos}"})>
 
     <objrule: Soy::command_print>
-             \{<is_explicit=(print)>? <variable>\}
+             \{<is_explicit=(print)>? <expression>\}
 
     <objrule: Soy::command_include>
               \{include <[attribute]>{2} % <_sep=(\s+)> \}
@@ -200,6 +199,70 @@ qr{
         <matchline> 
         \{ifempty\}<[content]>+?
 
+}xms;
+
+=head2 Plosurin::Exp::Grammar - Expression grammar
+
+
+=cut
+
+qr{
+     <grammar: Plosurin::Exp::Grammar>
+
+#level 
+    #ternary
+    <rule: expr> <Main=add> \? <True=add> \: <False=add>
+            | <MATCH=list> 
+            | <MATCH=map>
+            | <MATCH=add>
+#list and map 
+    <objrule: Exp::list>\[ <[expr]>* % (,) \]
+    <objrule: Exp::map>\[ <[content=keyval]>* % (,) \]
+
+    <objrule: Exp::keyval> <key> : <val=expr>
+    <token: key>  <MATCH=String> | <MATCH=Var> | <MATCH=Digit>
+#level 
+    <objrule: Exp::add>
+                <a=mult> <op=([+-])> <b=expr> 
+                | <MATCH=mult> 
+
+    <objrule: Exp::mult> 
+                <a=term> <op=([*/])> <b=mult>
+                | <MATCH=term>
+
+     <objrule: term> 
+              <MATCH=Literal> 
+            | <Sign=([+-])> \( <expr>\) #unary
+            | \( <MATCH=expr> \)
+
+    <token: Literal>
+                    <MATCH=Bool>   |
+                    <MATCH=Var>    |
+                    <MATCH=String> |
+                    <MATCH=Digit> 
+
+    <token: Ident>
+            <MATCH=([a-z,A-Z_](?: [a-zA-Z_0-9])* )>
+
+    <objtoken: Exp::Var>
+            \$ <Ident>
+
+    <objtoken: Exp::Bool>
+            true | false
+
+    <objtoken: Exp::Digit>
+            [+-]? \d++ (?: \. \d++ )?+
+
+    <objtoken: Exp::String> 
+        \'
+       <value=(
+         (?:
+         [^'\\\n\r] 
+        | \\ [nrtbf'"] 
+         # TODO \ua3ce
+        | \s
+         )*)>
+      \'
 }xms;
 
 1;

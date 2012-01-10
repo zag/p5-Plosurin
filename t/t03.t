@@ -15,7 +15,7 @@ package main;
 use strict;
 use warnings;
 
-use Test::More tests => 2;    # last test to print
+use Test::More tests => 3;    # last test to print
 use Plosurin::SoyTree;
 use Data::Dumper;
 use Plosurin::Context;
@@ -32,7 +32,7 @@ our $t1 = <<'T1';
 
 /*
   * ok
-  * @param d raw txt
+  * @param par raw txt
 */
 {template .2}
 <h1>template2</h1>
@@ -70,28 +70,21 @@ sub code2perl5 {
 );
     my $st1 =
         new Plosurin::SoyTree(
-    src => $code );
+    src => $code,
+      offset  =>  0,
+      srcfile => 'test'
+    );
     my $t2 = $st1->reduced_tree;
     $p5->write( @{$t2} );
     return wantarray()  ? ( $p5->wr->{code}, $t2) : $p5->wr->{code};
 }
 
 
-#$p5->write( @{$t2} );
-#say $p5->wr->{code};
 ok code2perl5('{$par}') =~ /\$args{'par'}/, '{$par}';
 ok code2perl5('{import file="t/samples/test.pod6"/}')=~/Some text/, 'import';
-exit;
 
-#   say Dumper $f;
-#$p5->start_write();
-#$p5->write($f);
-#$p5->end_write();
+ok code2perl5('{foreach $i in [1,10]}ok{print $i}{ifempty}les{/foreach}') =~ m/scalar\(\@\$list_i1\)/i, 'foreach';
 
-#ok $p5->wr->{code}, 'code gen';
-#say $p5->wr->{code};
-#diag Dumper $p5->{tmpls};
-#warn Dumper $p5->wr;
 1;
 
 

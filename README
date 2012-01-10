@@ -19,6 +19,8 @@ This module requires these other modules and libraries:
 
  Regexp::Grammars;
  HTTP::Server::Simple::WebDAO;
+ Perl6::Pod::Lib
+ Perl6::Pod
 
 COPYRIGHT AND LICENCE
 
