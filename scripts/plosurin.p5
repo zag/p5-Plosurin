@@ -40,7 +40,7 @@ if ( $mode eq 'web' ) {
 
     #check if web server mode
     my $srv = new HTTP::Server::Simple::WebDAO::($port);
-    $srv->set_config( wdEngine => "Plosurin::HTTP", wdDebug => 3 );
+    $srv->set_config( wdEngine => "Plosurin::HTTP", wdDebug => 1 );
     $srv->run();
 }
 else {
