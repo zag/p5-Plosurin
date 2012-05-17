@@ -5,7 +5,7 @@ Module::Build->new
     license => 'perl',
    prereq => {
 	'Regexp::Grammars'=>1.014,
-	'HTTP::Server::Simple::WebDAO'=>0.01,
+	'HTTP::Server::Simple::WebDAO'=>0.02,
         'Perl6::Pod::Lib'=>0.07,
         'Perl6::Pod'=>0.35
 	     },
