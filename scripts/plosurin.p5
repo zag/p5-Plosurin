@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Getopt::Long;
 use Pod::Usage;
-use v5.12;
+use v5.10;
 use Data::Dumper;
 use IO::File;
 use Plosurin;
