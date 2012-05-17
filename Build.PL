@@ -1,5 +1,5 @@
 use Module::Build;
-use v5.12;
+use v5.10;
 Module::Build->new
     ( module_name => 'Plosurin',
     license => 'perl',
