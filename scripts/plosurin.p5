@@ -54,6 +54,8 @@ else {
     }
     my $in;
     { local $/; undef $/; $in = <$in_fd> };
+    utf8::decode( $in ) unless utf8::is_utf8( $in );
+
     my $p = new Plosurin::;
     my $nodes = $p->parse( $in, $infile // "STDIN" );
     die "Can't parse $infile" unless $nodes;

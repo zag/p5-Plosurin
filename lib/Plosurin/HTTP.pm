@@ -24,6 +24,7 @@ use warnings;
 use base qw/WebDAO::Engine/;
 use Data::Dumper;
 use Plosurin;
+use open ':utf8';
 
 sub __any_path {
     my $self = shift;
