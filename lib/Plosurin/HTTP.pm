@@ -86,7 +86,7 @@ sub _parse_file {
     return [ $code, @tmpls ];
 }
 
-=head 2 RenderSoy
+=head2 RenderSoy
 
 param 
     path = /path/to/file.soy
