@@ -192,7 +192,7 @@ package Plosurin;
 use strict;
 use warnings;
 use v5.10;
-our $VERSION = '0.1.3';
+our $VERSION = '0.1.4';
 use Regexp::Grammars;
 use Plosurin::Grammar;
 use Plosurin::Context;
