@@ -85,6 +85,7 @@ If a command has a corresponding end command, then the end command's name is a C
 package Plo::File;
 use Plosurin::SoyTree;
 use base 'Soy::base';
+our $VERSION = '0.01';
 
 sub new {
     my $class = shift;
@@ -128,6 +129,7 @@ use strict;
 use warnings;
 use Plosurin::SoyTree;
 use base 'Soy::base';
+our $VERSION = '0.01';
 
 sub new {
     my $class = shift;
@@ -164,6 +166,7 @@ sub childs {
 1;
 
 package Plo::h_params;
+our $VERSION = '0.01';
 
 sub new  {
     my $class = shift;

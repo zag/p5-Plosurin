@@ -124,6 +124,7 @@ use base 'Soy::base';
 use strict;
 use warnings;
 use Data::Dumper;
+our $VERSION = '0.01';
 
 sub dump {
     my $self = shift;
@@ -138,11 +139,14 @@ use Plosurin::SoyTree;
 use base 'Soy::command_call_self';
 use strict;
 use warnings;
+our $VERSION = '0.01';
+1;
 
 package Soy::command_else;
 use base 'Soy::base';
 use strict;
 use warnings;
+our $VERSION = '0.01';
 1;
 
 package Soy::command_if;
@@ -151,6 +155,7 @@ use strict;
 use warnings;
 use v5.10;
 use Data::Dumper;
+our $VERSION = '0.01';
 
 sub dump {
     my $self = shift;

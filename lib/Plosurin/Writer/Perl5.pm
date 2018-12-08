@@ -27,6 +27,7 @@ package Plosurin::Writer::Perl5;
 use strict;
 use warnings;
 use v5.10;
+our $VERSION = '0.01';
 
 sub new {
     my $class = shift;
