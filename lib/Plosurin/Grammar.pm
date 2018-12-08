@@ -19,8 +19,8 @@ Plosurin::Grammar - Grammars for Closure Templates
 
 =cut
 package Plosurin::Grammar;
-use strict;
-use warnings;
+#use strict;
+#use warnings;
 use v5.10;
 use Regexp::Grammars;
 
@@ -126,7 +126,7 @@ qr{
         ['"] <value=(?: ([^'"]+) )>  ['"]
 
     <token: variable>            \$?\w+ 
-    <objtoken: Soy::expressiong>  .*?
+    <objtoken: Soy::expressiong = expression >  .*?
     <objrule:  Soy::raw_text>    [^\{]+
 
 

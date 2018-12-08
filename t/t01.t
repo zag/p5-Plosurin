@@ -8,7 +8,6 @@ use v5.10;
 use Regexp::Grammars;
 use Plosurin;
 
-
 my $p   = new Plosurin::;
 
 my $str = <<'TXT';
