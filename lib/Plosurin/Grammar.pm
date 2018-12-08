@@ -23,6 +23,7 @@ package Plosurin::Grammar;
 #use warnings;
 use v5.10;
 use Regexp::Grammars;
+our $VERSION = '0.01';
 
 =head2 Plosurin::Template::Grammar - template file grammar
 

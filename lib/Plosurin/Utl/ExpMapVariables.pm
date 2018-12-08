@@ -12,6 +12,7 @@ use Plosurin::AbstractVisiter;
 use base 'Plosurin::AbstractVisiter';
 use Data::Dumper;
 use vars qw($AUTOLOAD);
+our $VERSION = '0.01';
 
 =head1 SYNOPSYS
 

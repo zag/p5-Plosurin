@@ -22,6 +22,7 @@ Plosurin::Context - maintain collection of files and templates
 package Plosurin::Context;
 use strict;
 use warnings;
+our $VERSION = '0.01';
 
 =head2 new
     

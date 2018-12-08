@@ -8,6 +8,8 @@ package Plosurin::AbstractVisiter;
 use strict;
 use warnings;
 use vars qw($AUTOLOAD);
+our $VERSION = '0.01';
+
 
 sub new {
     my $class = shift;

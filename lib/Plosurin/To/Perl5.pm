@@ -29,6 +29,7 @@ use v5.10;
 use Data::Dumper;
 use Plosurin::AbstractVisiter;
 use base 'Plosurin::AbstractVisiter';
+our $VERSION = '0.01';
 
 =head2 new context=>$ctx, writer=>$writer, package=>"Tmpl"
 

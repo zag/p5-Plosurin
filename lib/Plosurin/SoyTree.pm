@@ -24,6 +24,7 @@ use strict;
 use warnings;
 use v5.10;
 use Data::Dumper;
+our $VERSION = '0.01';
 
 sub new {
     my $class = shift;
@@ -34,6 +35,7 @@ sub new {
 
 package Soy::base;
 use Data::Dumper;
+our $VERSION = '0.01';
 
 sub new {
     my $class = shift;
@@ -90,15 +92,17 @@ sub dump {
 
 package Soy::command_print;
 use base 'Soy::base';
+our $VERSION = '0.01';
 1;
 
 package Soy::expressiong;
 use base 'Soy::base';
+our $VERSION = '0.01';
 1;
 
 package Soy::raw_text;
 use base 'Soy::base';
-
+our $VERSION = '0.01';
 1;
 
 package Soy::command_elseif;
@@ -106,6 +110,7 @@ use base 'Soy::base';
 use Data::Dumper;
 use strict;
 use warnings;
+our $VERSION = '0.01';
 
 sub dump {
     my $self = shift;
@@ -175,6 +180,7 @@ use base 'Soy::base';
 use warnings;
 use strict;
 use Data::Dumper;
+our $VERSION = '0.01';
 
 sub as_perl5 {
     my $self = shift;
@@ -195,8 +201,11 @@ sub dump {
 
 package Soy::command_param_self;
 use base 'Soy::command_param';
+our $VERSION = '0.01';
+1;
 
 package Soy::Node;
+our $VERSION = '0.01';
 use base 'Soy::base';
 
 sub childs {
@@ -211,6 +220,7 @@ sub as_perl5 {
 package Soy::command_import;
 use strict;
 use warnings;
+our $VERSION = '0.01';
 use base 'Soy::base';
 1;
 
@@ -255,6 +265,7 @@ package Soy::command_foreach;
 use strict;
 use warnings;
 use base 'Soy::base';
+our $VERSION = '0.01';
 
 sub get_var_name {
     my $self = shift;
@@ -286,6 +297,8 @@ package Soy::command_foreach_ifempty;
 use strict;
 use warnings;
 use base 'Soy::base';
+our $VERSION = '0.01';
+1;
 
 package Soy::Expression;
 use strict;
@@ -293,6 +306,7 @@ use warnings;
 use Regexp::Grammars;
 use Plosurin::Grammar;
 use base 'Soy::expressiong';
+our $VERSION = '0.01';
 
 sub new {
     my $class = shift;
@@ -307,7 +321,6 @@ use warnings;
 use Regexp::Grammars;
 use Plosurin::Grammar;
 use Plosurin::Utl::ExpMapVariables;
-
 use Data::Dumper;
 use base 'Soy::base';
 
@@ -344,6 +357,7 @@ sub parse {
 package Exp::base;
 use Data::Dumper;
 use base 'Soy::base';
+our $VERSION = '0.01';
 
 sub new {
     my $class = shift;
@@ -365,6 +379,7 @@ use strict;
 use warnings;
 use Data::Dumper;
 use base 'Exp::base';
+our $VERSION = '0.01';
 
 sub as_perl5 {
     my $self = shift;
@@ -376,6 +391,7 @@ use strict;
 use warnings;
 use Data::Dumper;
 use base 'Exp::base';
+our $VERSION = '0.01';
 
 sub as_perl5 {
     my $self = shift;
@@ -387,6 +403,7 @@ use strict;
 use warnings;
 use Data::Dumper;
 use base 'Exp::base';
+our $VERSION = '0.01';
 
 sub as_perl5 {
     my $self = shift;
@@ -403,6 +420,7 @@ use strict;
 use warnings;
 use Data::Dumper;
 use base 'Exp::add';
+our $VERSION = '0.01';
 1;
 
 package Exp::String;
@@ -410,6 +428,7 @@ use strict;
 use warnings;
 use Data::Dumper;
 use base 'Exp::base';
+our $VERSION = '0.01';
 
 sub as_perl5 {
     my $self = shift;
@@ -421,6 +440,8 @@ use strict;
 use warnings;
 use Data::Dumper;
 use base 'Exp::base';
+our $VERSION = '0.01';
+
 
 sub childs {
     my $self = shift;
@@ -442,6 +463,7 @@ use v5.10;
 use Data::Dumper;
 use Plosurin::Grammar;
 use Regexp::Grammars;
+use version; our $VERSION = qv('0.0.1');
 
 =head2 new
 
